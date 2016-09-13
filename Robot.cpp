@@ -19,5 +19,16 @@ void Robot::changeSize(int percent)
 
 void Robot::changeRotation(int percent)
 {
-	mrRobot->setRotation(percent*3.6);
+	rotation=percent*3.6;
+	mrRobot->setRotation(-rotation);
+}
+
+void Robot::changeStep(int percent)
+{
+	stepLength=percent;
+}
+
+void Robot::makeStep()
+{
+	mrRobot->setPosition(Vec2(mrRobot->getPosition().x+stepLength*cos(rotation*3.141592/180),mrRobot->getPosition().y+stepLength*sin(rotation*3.141592/180)));
 }

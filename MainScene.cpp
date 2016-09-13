@@ -40,12 +40,11 @@ bool MainScene::init()
         this->addChild(sizeSlider);
 
         sizeSlider->addEventListener(CC_CALLBACK_2(MainScene::sizeSliderEvent, this));
-
         
         sizeLabel = Label::createWithTTF( "Size: 0", "fonts/Marker Felt.ttf", visibleSize.height * SCORE_FONT_SIZE );
         sizeLabel->setColor(Color3B::WHITE);
         sizeLabel->setPosition(Point(visibleSize.width*0.9, visibleSize.height * 0.9));
-        
+
         this->addChild(sizeLabel);
     }
         //ROTATION
@@ -58,14 +57,42 @@ bool MainScene::init()
 
         rotationSlider->addEventListener(CC_CALLBACK_2(MainScene::rotationSliderEvent, this));
 
-        
         rotationLabel = Label::createWithTTF( "Rotation:  0'", "fonts/Marker Felt.ttf", visibleSize.height * SCORE_FONT_SIZE );
         rotationLabel->setColor(Color3B::WHITE );
         rotationLabel->setPosition(Point(visibleSize.width*0.9, visibleSize.height * 0.8));
         
         this->addChild(rotationLabel);
     }
-    //START
+
+        //STEP
+    {
+        ui::Slider *stepSlider=ui::Slider::create();
+        stepSlider->loadBarTexture("bar.png");
+        stepSlider->loadSlidBallTextureNormal("slider.png");
+        stepSlider->setPosition(Vec2(visibleSize.width*0.75,visibleSize.height*0.7));
+        this->addChild(stepSlider);
+
+        stepSlider->addEventListener(CC_CALLBACK_2(MainScene::stepSliderEvent, this));
+
+        stepLabel = Label::createWithTTF( "Step:  0", "fonts/Marker Felt.ttf", visibleSize.height * SCORE_FONT_SIZE );
+        stepLabel->setColor(Color3B::WHITE );
+        stepLabel->setPosition(Point(visibleSize.width*0.9, visibleSize.height * 0.7));
+        
+        this->addChild(stepLabel);
+    }
+
+        //START
+
+    {
+        auto startItem = MenuItemImage::create("startbutton.png","startbutton.png",CC_CALLBACK_1(MainScene::START, this));
+    
+        startItem->setPosition(Vec2(visibleSize.width*0.9,visibleSize.height*0.15));
+
+        auto startButton = Menu::create(startItem, NULL);
+        startButton->setPosition(Vec2::ZERO);
+        this->addChild(startButton, 1);
+    }
+    //OBJECT_INIT
 
     mrRobot=new Robot(this);
     
@@ -105,4 +132,21 @@ void MainScene::rotationSliderEvent(Ref *sender, ui::Slider::EventType type)
         robotRotation=percent*3.6;
         rotationLabel->setString("Rotation: "+(std::to_string(robotRotation))+"'");
     }
+}
+
+void MainScene::stepSliderEvent(Ref *sender, ui::Slider::EventType type)
+{
+    if(type==ui::Slider::EventType::ON_PERCENTAGE_CHANGED)
+    {
+        ui::Slider *slider = dynamic_cast<ui::Slider *>(sender);
+        int percent = slider->getPercent();
+        mrRobot->changeStep(percent);
+        robotStep=percent;
+        stepLabel->setString("Step: "+(std::to_string(robotStep)));
+    }
+}
+
+void MainScene::START(cocos2d::Ref* pSender)
+{
+    mrRobot->makeStep();
 }

@@ -20,12 +20,16 @@ public:
 
     void sizeSliderEvent(Ref *sender, ui::Slider::EventType type);
     void rotationSliderEvent(Ref *sender, ui::Slider::EventType type);
+    void stepSliderEvent(Ref *sender, ui::Slider::EventType type);
+
+    void START(cocos2d::Ref* pSender);
 
 private:
 	Robot *mrRobot;
 	cocos2d::Label* sizeLabel;
 	cocos2d::Label* rotationLabel;
-	int robotSize, robotRotation;
+	cocos2d::Label* stepLabel;
+	int robotSize, robotRotation, robotStep;
 	//__String *tempSize;
 };
 
