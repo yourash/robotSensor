@@ -1,6 +1,10 @@
 #include "MainScene.h"
 #include "SimpleAudioEngine.h"
+#include "2d/CCDrawingPrimitives.h"
+
 #define SCORE_FONT_SIZE 0.04
+
+bool rayIsOn=false;
 
 USING_NS_CC;
 
@@ -30,36 +34,67 @@ bool MainScene::init()
     menu->setPosition(Vec2::ZERO);
     this->addChild(menu, 1);
 
-    //MENU
-        //SIZE
+    //BACKGROUND    
+
     {
-        ui::Slider *sizeSlider=ui::Slider::create();
-        sizeSlider->loadBarTexture("bar.png");
-        sizeSlider->loadSlidBallTextureNormal("slider.png");
-        sizeSlider->setPosition(Vec2(visibleSize.width*0.75,visibleSize.height*0.9));
-        this->addChild(sizeSlider);
-
-        sizeSlider->addEventListener(CC_CALLBACK_2(MainScene::sizeSliderEvent, this));
-        
-        sizeLabel = Label::createWithTTF( "Size: 0", "fonts/Marker Felt.ttf", visibleSize.height * SCORE_FONT_SIZE );
-        sizeLabel->setColor(Color3B::WHITE);
-        sizeLabel->setPosition(Point(visibleSize.width*0.9, visibleSize.height * 0.9));
-
-        this->addChild(sizeLabel);
+        backGround = Sprite::create("background.png");
+        backGround->setPosition(Vec2((visibleSize.width/2), (visibleSize.height/2)));
+        backGround->setScale(visibleSize.width/backGround->getContentSize().width,visibleSize.height/backGround->getContentSize().height);
+        this->addChild(backGround, -1);
     }
+
+    //MENU
+
+        //WIDTH
+    {
+        ui::Slider *widthSlider=ui::Slider::create();
+        widthSlider->loadBarTexture("bar.png");
+        widthSlider->loadSlidBallTextureNormal("slider.png");
+        widthSlider->setPosition(Vec2(visibleSize.width*0.75,visibleSize.height*0.95));
+        widthSlider->setScale(1.8,1);
+        this->addChild(widthSlider);
+
+        widthSlider->addEventListener(CC_CALLBACK_2(MainScene::widthSliderEvent, this));
+        
+        widthLabel = Label::createWithTTF( "Width: 0", "fonts/Marker Felt.ttf", visibleSize.height * SCORE_FONT_SIZE );
+        widthLabel->setColor(Color3B::WHITE);
+        widthLabel->setPosition(Point(visibleSize.width*0.92, visibleSize.height * 0.95));
+
+        this->addChild(widthLabel);
+    }
+
+        //HEIGHT
+    {
+        ui::Slider *heightSlider=ui::Slider::create();
+        heightSlider->loadBarTexture("bar.png");
+        heightSlider->loadSlidBallTextureNormal("slider.png");
+        heightSlider->setPosition(Vec2(visibleSize.width*0.75,visibleSize.height*0.85));
+        heightSlider->setScale(1.8,1);
+        this->addChild(heightSlider);
+
+        heightSlider->addEventListener(CC_CALLBACK_2(MainScene::heightSliderEvent, this));
+        
+        heightLabel = Label::createWithTTF( "Height: 0", "fonts/Marker Felt.ttf", visibleSize.height * SCORE_FONT_SIZE );
+        heightLabel->setColor(Color3B::WHITE);
+        heightLabel->setPosition(Point(visibleSize.width*0.92, visibleSize.height * 0.85));
+
+        this->addChild(heightLabel);       
+    }
+
         //ROTATION
     {
         ui::Slider *rotationSlider=ui::Slider::create();
         rotationSlider->loadBarTexture("bar.png");
         rotationSlider->loadSlidBallTextureNormal("slider.png");
-        rotationSlider->setPosition(Vec2(visibleSize.width*0.75,visibleSize.height*0.8));
+        rotationSlider->setPosition(Vec2(visibleSize.width*0.75,visibleSize.height*0.75));
+        rotationSlider->setScale(1.8,1);
         this->addChild(rotationSlider);
 
         rotationSlider->addEventListener(CC_CALLBACK_2(MainScene::rotationSliderEvent, this));
 
         rotationLabel = Label::createWithTTF( "Rotation:  0'", "fonts/Marker Felt.ttf", visibleSize.height * SCORE_FONT_SIZE );
         rotationLabel->setColor(Color3B::WHITE );
-        rotationLabel->setPosition(Point(visibleSize.width*0.9, visibleSize.height * 0.8));
+        rotationLabel->setPosition(Point(visibleSize.width*0.92, visibleSize.height * 0.75));
         
         this->addChild(rotationLabel);
     }
@@ -69,20 +104,38 @@ bool MainScene::init()
         ui::Slider *stepSlider=ui::Slider::create();
         stepSlider->loadBarTexture("bar.png");
         stepSlider->loadSlidBallTextureNormal("slider.png");
-        stepSlider->setPosition(Vec2(visibleSize.width*0.75,visibleSize.height*0.7));
+        stepSlider->setPosition(Vec2(visibleSize.width*0.75,visibleSize.height*0.65));
+        stepSlider->setScale(1.8,1);
         this->addChild(stepSlider);
 
         stepSlider->addEventListener(CC_CALLBACK_2(MainScene::stepSliderEvent, this));
 
         stepLabel = Label::createWithTTF( "Step:  0", "fonts/Marker Felt.ttf", visibleSize.height * SCORE_FONT_SIZE );
         stepLabel->setColor(Color3B::WHITE );
-        stepLabel->setPosition(Point(visibleSize.width*0.9, visibleSize.height * 0.7));
+        stepLabel->setPosition(Point(visibleSize.width*0.92, visibleSize.height * 0.65));
         
         this->addChild(stepLabel);
     }
 
-        //START
+        //RAYROTATIONANGLE
+    {
+        ui::Slider *angleSlider=ui::Slider::create();
+        angleSlider->loadBarTexture("bar.png");
+        angleSlider->loadSlidBallTextureNormal("slider.png");
+        angleSlider->setPosition(Vec2(visibleSize.width*0.75,visibleSize.height*0.55));
+        angleSlider->setScale(1.8,1);
+        this->addChild(angleSlider);
 
+        angleSlider->addEventListener(CC_CALLBACK_2(MainScene::changeAngle, this));
+
+        angleLabel = Label::createWithTTF( "Angle:  0'", "fonts/Marker Felt.ttf", visibleSize.height * SCORE_FONT_SIZE );
+        angleLabel->setColor(Color3B::WHITE );
+        angleLabel->setPosition(Point(visibleSize.width*0.92, visibleSize.height * 0.55));
+        
+        this->addChild(angleLabel);
+    }
+
+        //START
     {
         auto startItem = MenuItemImage::create("startbutton.png","startbutton.png",CC_CALLBACK_1(MainScene::START, this));
     
@@ -92,11 +145,40 @@ bool MainScene::init()
         startButton->setPosition(Vec2::ZERO);
         this->addChild(startButton, 1);
     }
+
+        //RAY
+    {
+        auto rayItem = MenuItemImage::create("raybutton.png","raybutton.png",CC_CALLBACK_1(MainScene::RAY, this));
+    
+        rayItem->setPosition(Vec2(visibleSize.width*0.9,visibleSize.height*0.25));
+
+        auto rayButton = Menu::create(rayItem, NULL);
+        rayButton->setPosition(Vec2::ZERO);
+        this->addChild(rayButton, 1); 
+    }
+
     //OBJECT_INIT
 
     mrRobot=new Robot(this);
+
+
+    rotationAngle=90;
+    this->scheduleUpdate();
     
     return true;
+}
+
+int rotation=0;
+
+void MainScene::update(float delta)
+{
+    Node::update(delta);
+    if(rayIsOn)
+    {
+        mrRobot->makeRayRotation(rotation);
+        rotation=rotation+rotationAngle;
+    }
+    Layer::update(delta);
 }
 
 
@@ -110,15 +192,27 @@ void MainScene::menuCloseCallback(Ref* pSender)
 #endif
 }
 
-void MainScene::sizeSliderEvent(Ref *sender, ui::Slider::EventType type)
+void MainScene::widthSliderEvent(Ref *sender, ui::Slider::EventType type)
 {
     if(type==ui::Slider::EventType::ON_PERCENTAGE_CHANGED)
     {
         ui::Slider *slider = dynamic_cast<ui::Slider *>(sender);
         int percent = slider->getPercent();
-        mrRobot->changeSize(percent);
-        robotSize=percent;
-        sizeLabel->setString("Size: "+(std::to_string(robotSize)));
+        mrRobot->changeWidth(percent,robotHeight);
+        robotWidth=percent;
+        widthLabel->setString("Width: "+(std::to_string(robotWidth)));
+    }
+}
+
+void MainScene::heightSliderEvent(Ref *sender, ui::Slider::EventType type)
+{
+    if(type==ui::Slider::EventType::ON_PERCENTAGE_CHANGED)
+    {
+        ui::Slider *slider = dynamic_cast<ui::Slider *>(sender);
+        int percent = slider->getPercent();
+        mrRobot->changeHeight(robotWidth,percent);
+        robotHeight=percent;
+        heightLabel->setString("Height: "+(std::to_string(robotHeight)));
     }
 }
 
@@ -146,7 +240,33 @@ void MainScene::stepSliderEvent(Ref *sender, ui::Slider::EventType type)
     }
 }
 
+void MainScene::changeAngle(Ref *sender, ui::Slider::EventType type)
+{
+    if(type==ui::Slider::EventType::ON_PERCENTAGE_CHANGED)
+    {
+        ui::Slider *slider = dynamic_cast<ui::Slider *>(sender);
+        int percent = slider->getPercent();
+        rotationAngle=percent*0.9;
+        angleLabel->setString("Angle: "+(std::to_string(rotationAngle))+"'");
+    }
+}
+
 void MainScene::START(cocos2d::Ref* pSender)
 {
-    mrRobot->makeStep();
+    if(!rayIsOn)
+        mrRobot->makeStep();
+}
+
+void MainScene::RAY(cocos2d::Ref* pSender)
+{   
+    if(!rayIsOn)
+    {
+        mrRobot->rayOn();
+        rayIsOn=true;
+    }
+    else
+    {
+        mrRobot->rayOff();
+        rayIsOn=false;
+    }
 }
